@@ -13,7 +13,7 @@ interface CrisisWrapperProps {
   successVoice: string;
   errorExplanation: string;
   onSuccess: () => void;
-  onError: (voice: string) => void;
+  onError: (voice: string, detail?: string) => void;
 }
 
 export default function CrisisWrapper({
