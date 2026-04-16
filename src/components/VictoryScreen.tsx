@@ -6,14 +6,25 @@ import { speak } from '@/lib/speech';
 interface VictoryScreenProps {
   teamName: string;
   elapsedSeconds: number;
+  errorCount: number;
 }
 
-export default function VictoryScreen({ teamName, elapsedSeconds }: VictoryScreenProps) {
+function calcGrade(errors: number): string {
+  if (errors === 0) return '5.0 (Nivel Dios)';
+  if (errors <= 2) return '4.5 (Excelente)';
+  if (errors <= 4) return '4.0 (Sobresaliente)';
+  if (errors <= 6) return '3.5 (Aceptable)';
+  return '3.0 (Sobrevivió de milagro)';
+}
+
+export default function VictoryScreen({ teamName, elapsedSeconds, errorCount }: VictoryScreenProps) {
   const mins = String(Math.floor(elapsedSeconds / 60)).padStart(2, '0');
   const secs = String(elapsedSeconds % 60).padStart(2, '0');
+  const timeStr = `${mins}:${secs}`;
+  const grade = calcGrade(errorCount);
 
   useEffect(() => {
-    speak('Operación logística maestra completada con éxito. Son verdaderos gerentes de operaciones. Felicidades firma consultora ' + teamName);
+    speak('Operación logística maestra completada con éxito. Son verdaderos gerentes de operaciones. Felicidades ' + teamName);
     const end = Date.now() + 4000;
     const frame = () => {
       confetti({ particleCount: 4, angle: 60, spread: 55, origin: { x: 0 } });
@@ -23,19 +34,45 @@ export default function VictoryScreen({ teamName, elapsedSeconds }: VictoryScree
     frame();
   }, [teamName]);
 
+  const sendWhatsApp = () => {
+    const msg = `🎓 REPORTE DEL SIMULADOR LOGÍSTICO 🎓\n👤 Estudiante: ${teamName}\n⏱️ Tiempo Total: ${timeStr}\n❌ Errores Cometidos (Pantallas Rojas): ${errorCount}\n🏆 NOTA DEL SISTEMA: ${grade}\n\n¡Hola profe! El sistema certifica que he superado todas las crisis del CEDI y estoy listo/a para mi nota final en la planilla.`;
+    window.open(`https://wa.me/573160457000?text=${encodeURIComponent(msg)}`, '_blank');
+  };
+
   return (
     <div className="min-h-screen flex flex-col items-center justify-center p-6 text-center bg-background">
       <Trophy className="text-yellow-400 mb-4" size={150} />
       <h1 className="font-display text-2xl text-gradient-orange mb-2">OPERACIÓN LOGÍSTICA MAESTRA</h1>
-      <p className="text-foreground text-lg mb-6">Los 3 casos resueltos con éxito</p>
-      <div className="bg-card border border-border rounded-xl p-6 mb-4">
-        <p className="text-muted-foreground text-sm mb-1">Firma Consultora</p>
+      <p className="text-foreground text-lg mb-6">¡ERES UN GERENTE LOGÍSTICO NIVEL DIOS!</p>
+
+      <div className="bg-card border border-border rounded-xl p-6 mb-4 w-full max-w-sm">
+        <p className="text-muted-foreground text-sm mb-1">Estudiante</p>
         <p className="font-display text-xl text-foreground">{teamName}</p>
       </div>
-      <div className="bg-card border border-border rounded-xl p-6">
-        <p className="text-muted-foreground text-sm mb-1">Tiempo Total</p>
-        <p className="font-display text-4xl text-orange">{mins}:{secs}</p>
+
+      <div className="flex gap-4 mb-4 w-full max-w-sm">
+        <div className="bg-card border border-border rounded-xl p-4 flex-1">
+          <p className="text-muted-foreground text-xs mb-1">Tiempo</p>
+          <p className="font-display text-2xl text-orange">{timeStr}</p>
+        </div>
+        <div className="bg-card border border-border rounded-xl p-4 flex-1">
+          <p className="text-muted-foreground text-xs mb-1">Errores</p>
+          <p className="font-display text-2xl text-red-400">{errorCount}</p>
+        </div>
       </div>
+
+      <div className="bg-card border border-border rounded-xl p-6 mb-6 w-full max-w-sm">
+        <p className="text-muted-foreground text-sm mb-1">Nota del Sistema</p>
+        <p className="font-display text-3xl text-green-400">{grade}</p>
+      </div>
+
+      <button
+        onClick={sendWhatsApp}
+        className="w-full max-w-sm bg-green-500 hover:bg-green-600 text-white font-display text-lg py-4 rounded-xl transition-all active:scale-95 animate-pulse"
+      >
+        📲 ENVIAR CALIFICACIÓN OFICIAL A LA PROFE
+      </button>
+      <p className="text-red-400 text-xs mt-3 font-bold">⚠️ Atención: Si no envías tu reporte por WhatsApp, tu nota será 0.0</p>
     </div>
   );
 }
