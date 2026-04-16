@@ -31,9 +31,12 @@ export default function SimuladorApp() {
   const [startTime, setStartTime] = useState(0);
   const [showPenalty, setShowPenalty] = useState(false);
   const [penaltyVoice, setPenaltyVoice] = useState('');
-  const [returnPhase, setReturnPhase] = useState<Phase>('start');
+  const [advancePhase, setAdvancePhase] = useState<Phase>('start');
   const [errorCount, setErrorCount] = useState(0);
   const [errorLog, setErrorLog] = useState<string[]>([]);
+
+  // Lifted product index for ChannelBuilder fail-forward
+  const [builderProduct, setBuilderProduct] = useState(0);
 
   const crisis1Ref = useRef<Crisis1Ref>(null);
   const crisis2Ref = useRef<Crisis2Ref>(null);
@@ -52,9 +55,10 @@ export default function SimuladorApp() {
     }, 200);
   };
 
-  const triggerPenalty = useCallback((voice: string, returnTo: Phase, detail?: string) => {
+  // Fail-forward: advanceTo is the NEXT phase (not the same one)
+  const triggerPenalty = useCallback((voice: string, advanceTo: Phase, detail?: string) => {
     setPenaltyVoice(voice);
-    setReturnPhase(returnTo);
+    setAdvancePhase(advanceTo);
     setErrorCount(prev => prev + 1);
     if (detail) setErrorLog(prev => [...prev, detail]);
     speak(voice);
@@ -63,8 +67,24 @@ export default function SimuladorApp() {
 
   const handlePenaltyComplete = useCallback(() => {
     setShowPenalty(false);
-    setPhase(returnPhase);
-  }, [returnPhase]);
+    setPhase(advancePhase);
+  }, [advancePhase]);
+
+  // Special handler for ChannelBuilder errors: advance product internally
+  const handleBuilderError = useCallback((voice: string, detail?: string) => {
+    setErrorCount(prev => prev + 1);
+    if (detail) setErrorLog(prev => [...prev, detail]);
+    speak(voice);
+    setPenaltyVoice(voice);
+    // Check if this was the last product (index 3 = product 4)
+    if (builderProduct >= 3) {
+      setAdvancePhase('c5_r1');
+    } else {
+      setBuilderProduct(prev => prev + 1);
+      setAdvancePhase('c4_builder');
+    }
+    setShowPenalty(true);
+  }, [builderProduct]);
 
   // Timer click bypass: cycle through phases
   const handleTimerClick = () => {
@@ -133,7 +153,7 @@ export default function SimuladorApp() {
       </div>
 
       <main className="flex-1 flex flex-col p-4 max-w-lg mx-auto w-full">
-        {/* === CASES 1-3 === */}
+        {/* === CASES 1-3: Fail-forward → advance to next phase === */}
         {phase === 'c1_channel' && (
           <ChannelQuestion
             icon="truck"
@@ -146,7 +166,7 @@ export default function SimuladorApp() {
             successVoice="¡Excelente análisis gerencial! Al obligarnos a usar un Mayorista para fraccionar la carga, es un Canal Largo. Levántate y valida tu ruta."
             errorVoice="¡Error logístico garrafal! Si usas el canal directo o corto, intentarías meter una tractomula gigante al barrio. Acabas de destruir los cables de la luz por no usar a un mayorista. Operación detenida por penalidad."
             onSuccess={() => setPhase('c1_pins')}
-            onError={() => triggerPenalty('¡Error logístico garrafal! Si usas el canal directo o corto, intentarías meter una tractomula gigante al barrio. Acabas de destruir los cables de la luz por no usar a un mayorista. Operación detenida por penalidad.', 'c1_channel', 'Fase 1-3: Seleccionó mal el tipo de canal logístico (Caso Postobón)')}
+            onError={() => triggerPenalty('¡Error logístico garrafal! Si usas el canal directo o corto, intentarías meter una tractomula gigante al barrio.', 'c1_pins', 'Fase 1-3: Seleccionó mal el tipo de canal logístico (Caso Postobón)')}
           />
         )}
         {phase === 'c1_pins' && (
@@ -161,7 +181,7 @@ export default function SimuladorApp() {
             ]}
             errorVoice="¡Error lógico! Te saltaste un eslabón de la cadena. En el Canal Largo, la carga debe pasar por el Mayorista antes de llegar a la tienda. Sistema bloqueado."
             onComplete={() => setPhase('c2_channel')}
-            onError={(voice) => triggerPenalty(voice, 'c1_pins', 'Fase 1-3: Ingresó mal un PIN de seguridad de canales (Caso 1)')}
+            onError={(voice) => triggerPenalty(voice, 'c2_channel', 'Fase 1-3: Ingresó mal un PIN de seguridad de canales (Caso 1)')}
           />
         )}
         {phase === 'c2_channel' && (
@@ -176,7 +196,7 @@ export default function SimuladorApp() {
             successVoice="Correcto. Canal Corto. Eliminan al mayorista para reducir costos y transferir el ahorro al consumidor. Ve a los carteles y demuestra la ruta."
             errorVoice="¡Error Gerencial! D1 no vende directo a las casas desde la fábrica (Directo), ni usa mayoristas (Largo). Usa un Canal Corto porque el supermercado minorista es el único intermediario."
             onSuccess={() => setPhase('c2_pins')}
-            onError={() => triggerPenalty('¡Error Gerencial! D1 no vende directo a las casas desde la fábrica (Directo), ni usa mayoristas (Largo). Usa un Canal Corto porque el supermercado minorista es el único intermediario.', 'c2_channel', 'Fase 1-3: Seleccionó mal el tipo de canal logístico (Caso D1/Ara)')}
+            onError={() => triggerPenalty('¡Error Gerencial! D1 no vende directo a las casas desde la fábrica (Directo), ni usa mayoristas (Largo). Usa un Canal Corto.', 'c2_pins', 'Fase 1-3: Seleccionó mal el tipo de canal logístico (Caso D1/Ara)')}
           />
         )}
         {phase === 'c2_pins' && (
@@ -190,7 +210,7 @@ export default function SimuladorApp() {
             ]}
             errorVoice="¡Error! Agregaste un intermediario innecesario. El Hard Discount conecta fábrica directo con supermercado. No usan mayoristas ni tiendas TAT. Sistema bloqueado."
             onComplete={() => setPhase('c3_channel')}
-            onError={(voice) => triggerPenalty(voice, 'c2_pins', 'Fase 1-3: Ingresó mal un PIN de seguridad de canales (Caso 2)')}
+            onError={(voice) => triggerPenalty(voice, 'c3_channel', 'Fase 1-3: Ingresó mal un PIN de seguridad de canales (Caso 2)')}
           />
         )}
         {phase === 'c3_channel' && (
@@ -205,7 +225,7 @@ export default function SimuladorApp() {
             successVoice="Correcto. Quick Commerce. Las Dark Stores son bodegas urbanas cerradas al público que permiten despachar en minutos. Ve a los carteles y demuestra la ruta."
             errorVoice="¡Error! Este modelo de hiper-proximidad con Dark Stores es Quick Commerce, no un canal tradicional."
             onSuccess={() => setPhase('c3_pins')}
-            onError={() => triggerPenalty('¡Error gerencial grave! Ignoraste el análisis del caso y generaste sobrecostos operativos. Asume la penalidad.', 'c3_channel', 'Fase 1-3: Seleccionó mal el tipo de canal logístico (Caso Rappi)')}
+            onError={() => triggerPenalty('¡Error! Este modelo de hiper-proximidad con Dark Stores es Quick Commerce, no un canal tradicional.', 'c3_pins', 'Fase 1-3: Seleccionó mal el tipo de canal logístico (Caso Rappi)')}
           />
         )}
         {phase === 'c3_pins' && (
@@ -218,19 +238,22 @@ export default function SimuladorApp() {
             ]}
             errorVoice="¡Error! El Quick Commerce despacha desde Dark Stores, no desde fábricas ni mayoristas. Solo necesitas la Dark Store y el cliente. Sistema bloqueado."
             onComplete={() => setPhase('c4_builder')}
-            onError={(voice) => triggerPenalty(voice, 'c3_pins', 'Fase 1-3: Ingresó mal un PIN de seguridad de canales (Caso 3)')}
+            onError={(voice) => triggerPenalty(voice, 'c4_builder', 'Fase 1-3: Ingresó mal un PIN de seguridad de canales (Caso 3)')}
           />
         )}
 
         {/* === PHASE 4: ROUTE BUILDER (4 Products) === */}
         {phase === 'c4_builder' && (
           <ChannelBuilder
+            key={builderProduct}
+            startProduct={builderProduct}
             onVictory={() => setPhase('c5_r1')}
-            onError={(voice, detail) => triggerPenalty(voice, 'c4_builder', detail)}
+            onProductAdvance={(nextIdx) => setBuilderProduct(nextIdx)}
+            onError={(voice, detail) => handleBuilderError(voice, detail)}
           />
         )}
 
-        {/* === PHASE 5: 5 CRISIS CHALLENGES === */}
+        {/* === PHASE 5: 6 CRISIS CHALLENGES === */}
         {phase === 'c5_r1' && (
           <CrisisWrapper
             crisisNumber={1}
@@ -241,7 +264,7 @@ export default function SimuladorApp() {
             successVoice="¡Flujo del CEDI asegurado! La cadena de frío se mantuvo intacta. Recepción, Clasificación, Picking y Packing, Despacho. Excelente gestión bajo presión."
             errorExplanation="❌ ¡DESASTRE OPERATIVO! La mercancía se pudrió en el muelle. La teoría de la Red de Distribución es inquebrantable: Todo inicia con la RECEPCIÓN (descarga del camión). Luego, obligatoriamente se hace la CLASIFICACIÓN (por destino o SKU). De ahí pasa a preparación (PICKING Y PACKING, que es el corazón que define la velocidad del CEDI), y finalmente sale a DESPACHO. ¡No puedes inventar atajos! Las flores se marchitaron y las vacunas perdieron la cadena de frío. Operación detenida."
             onSuccess={() => setPhase('c5_r2')}
-            onError={(voice, detail) => triggerPenalty(voice, 'c5_r1', detail || 'Crisis 1 (Perecederos): Cruzó el flujo físico en el CEDI o falló texto de Cadena de Frío')}
+            onError={(voice, detail) => triggerPenalty(voice, 'c5_r2', detail || 'Crisis 1 (Perecederos): Cruzó el flujo físico en el CEDI o falló texto de Cadena de Frío')}
           >
             <Crisis1Console ref={crisis1Ref} />
           </CrisisWrapper>
@@ -257,7 +280,7 @@ export default function SimuladorApp() {
             successVoice="¡Canal configurado correctamente! Megamayorista fraccionando carga y Minoristas TAT vendiendo al detal. 500,000 tiendas cubiertas en 48 horas."
             errorExplanation="❌ ¡EL PRODUCTO NO LLEGÓ A LA GENTE Y PERDIMOS MILLONES! El consumo masivo y económico exige un CANAL LARGO. A mayor cobertura geográfica, necesitas ceder margen a un MAYORISTA que compre en tractomulas y fraccione la carga, entregándosela al MINORISTA (la tienda), quien vende por unidades al detal en cada cuadra. ¡Intentar vender masivo por web o camiones propios es un suicidio logístico! El Agente Aduanero es para comercio internacional, no aplica aquí."
             onSuccess={() => setPhase('c5_r3')}
-            onError={(voice, detail) => triggerPenalty(voice, 'c5_r2', detail || 'Crisis 2 (Masivo): Encendió mal los interruptores o falló texto de Cobertura/Mayorista')}
+            onError={(voice, detail) => triggerPenalty(voice, 'c5_r3', detail || 'Crisis 2 (Masivo): Encendió mal los interruptores o falló texto de Cobertura/Mayorista')}
           >
             <Crisis2Console ref={crisis2Ref} />
           </CrisisWrapper>
@@ -273,7 +296,7 @@ export default function SimuladorApp() {
             successVoice="¡Calibración perfecta! Góndolas al 0% y SKUs mínimos. El Hard Discount es austeridad pura: el rey es el PRECIO. Producto exhibido desde la caja corrugada."
             errorExplanation="❌ ¡QUIEBRA FINANCIERA INMINENTE! No entendiste el ADN del Hard Discount. Su éxito radica en la eficiencia extrema y austeridad: INVERSIÓN EN GÓNDOLAS DEBE SER 0% (se exhibe y vende desde la misma caja de cartón rasgada, sin lujos) y los SKUs deben ser súper limitados (menos de 1,000 — menos variedad significa reabastecimiento más rápido y simple). ¡El rey absoluto aquí es el PRECIO! Si inviertes en lujo o variedad, pierdes la guerra de costos contra D1 y Ara."
             onSuccess={() => setPhase('c5_r4')}
-            onError={(voice, detail) => triggerPenalty(voice, 'c5_r3', detail || 'Crisis 3 (Hard Discount): Le puso lujos a las góndolas o falló texto de Austeridad/Alta Rotación')}
+            onError={(voice, detail) => triggerPenalty(voice, 'c5_r4', detail || 'Crisis 3 (Hard Discount): Le puso lujos a las góndolas o falló texto de Austeridad/Alta Rotación')}
           >
             <Crisis3Console ref={crisis3Ref} />
           </CrisisWrapper>
@@ -289,7 +312,7 @@ export default function SimuladorApp() {
             successVoice="¡Diagnóstico perfecto! 53% del costo logístico total se consume en la Última Milla. Has identificado el hoyo negro financiero."
             errorExplanation="❌ ¡DESCUADRE CONTABLE IMPERDONABLE! Sigues perdiendo plata a chorros. Según la teoría logística y las métricas globales, la Última Milla (Last Mile) representa hasta el 53% del costo total de envío. El tráfico, las calles estrechas, direcciones incorrectas y la ausencia del cliente hacen que cada re-entrega duplique el costo logístico de ese paquete. ¡Es el tramo más corto pero el hoyo negro financiero más letal! Calibra el escáner exactamente en 53%."
             onSuccess={() => setPhase('c5_r5')}
-            onError={(voice, detail) => triggerPenalty(voice, 'c5_r4', detail || 'Crisis 4 (Última Milla): No calibró el 53% exacto o falló texto sobre Tráfico/Reentregas')}
+            onError={(voice, detail) => triggerPenalty(voice, 'c5_r5', detail || 'Crisis 4 (Última Milla): No calibró el 53% exacto o falló texto sobre Tráfico/Reentregas')}
           >
             <Crisis4Console ref={crisis4Ref} />
           </CrisisWrapper>
@@ -305,7 +328,7 @@ export default function SimuladorApp() {
             successVoice="¡RFID activado! Las antenas están leyendo pallets enteros en milisegundos. Trazabilidad total en tiempo real. ¡ERES UN GERENTE LOGÍSTICO NIVEL DIOS!"
             errorExplanation="❌ ¡EL CEDI ESTÁ PARALIZADO POR USAR TECNOLOGÍA OBSOLETA! El código de barras es bueno, pero exige 'línea de vista' (un operario apuntando manualmente). La respuesta que salva la operación es RFID (Identificación por Radiofrecuencia). Permite lectura automática de pallets enteros en milisegundos, sin necesidad de línea de visión directa, brindando trazabilidad en tiempo real a la velocidad de la luz. ¡Actualiza tu mente!"
             onSuccess={() => setPhase('c5_r6')}
-            onError={(voice, detail) => triggerPenalty(voice, 'c5_r5', detail || 'Crisis 5 (Tecnología): Escribió mal RFID o no justificó las ondas/trazabilidad vs vista manual')}
+            onError={(voice, detail) => triggerPenalty(voice, 'c5_r6', detail || 'Crisis 5 (Tecnología): Escribió mal RFID o no justificó las ondas/trazabilidad vs vista manual')}
           >
             <Crisis5Console ref={crisis5Ref} />
           </CrisisWrapper>
@@ -321,7 +344,7 @@ export default function SimuladorApp() {
             successVoice="¡PERFECTO! Picking RECOLECTA, Packing EMPACA. Dominas el idioma del CEDI. ¡Los portones están abiertos, los camiones salen!"
             errorExplanation="❌ ¡CONFUSIÓN GERENCIAL FATAL! \n\nPICKING (del inglés Pick = Recoger/Picar) es el operario que viaja por la bodega recolectando artículos.\n\nPACKING (del inglés Pack = Empacar) es la estación fija donde se arma la caja con burbujas y cinta.\n\n¡Cruzar estos términos es un sacrilegio logístico que te costará millones en devoluciones!"
             onSuccess={() => setPhase('victory')}
-            onError={(voice, detail) => triggerPenalty(voice, 'c5_r6', detail || 'Crisis 6 (Acertijo final): Confundió el rol de Picking (caminar) con Packing (empacar fijo)')}
+            onError={(voice, detail) => triggerPenalty(voice, 'victory', detail || 'Crisis 6 (Acertijo final): Confundió el rol de Picking (caminar) con Packing (empacar fijo)')}
           >
             <Crisis6Console ref={crisis6Ref} />
           </CrisisWrapper>
