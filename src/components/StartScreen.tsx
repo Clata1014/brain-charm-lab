@@ -18,7 +18,7 @@ export default function StartScreen({ teamName, onTeamNameChange, onStart }: Sta
       <div className="w-full max-w-sm space-y-4">
         <input
           type="text"
-          placeholder="Nombre de la Firma Consultora"
+          placeholder="👤 Escribe tus Nombres y Apellidos Completos"
           value={teamName}
           onChange={e => onTeamNameChange(e.target.value)}
           onKeyDown={e => e.key === 'Enter' && onStart()}
