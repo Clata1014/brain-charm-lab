@@ -59,7 +59,7 @@ const NODE_OPTIONS: { type: NodeType; emoji: string; label: string; icon: typeof
 
 interface ChannelBuilderProps {
   onVictory: () => void;
-  onError?: (voice: string) => void;
+  onError?: (voice: string, detail?: string) => void;
 }
 
 export default function ChannelBuilder({ onVictory, onError }: ChannelBuilderProps) {
@@ -207,7 +207,7 @@ export default function ChannelBuilder({ onVictory, onError }: ChannelBuilderPro
       } else {
         // Fail → penalty
         if (onError) {
-          onError(product.failMessage);
+          onError(product.failMessage, 'Fase 4: Armó mal la ruta de eslabones visuales para ' + product.title);
         }
         resetAll();
       }

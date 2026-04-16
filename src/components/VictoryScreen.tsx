@@ -7,6 +7,7 @@ interface VictoryScreenProps {
   teamName: string;
   elapsedSeconds: number;
   errorCount: number;
+  errorLog: string[];
 }
 
 function calcGrade(errors: number): string {
@@ -17,7 +18,7 @@ function calcGrade(errors: number): string {
   return '3.0 (Sobrevivió de milagro)';
 }
 
-export default function VictoryScreen({ teamName, elapsedSeconds, errorCount }: VictoryScreenProps) {
+export default function VictoryScreen({ teamName, elapsedSeconds, errorCount, errorLog }: VictoryScreenProps) {
   const mins = String(Math.floor(elapsedSeconds / 60)).padStart(2, '0');
   const secs = String(elapsedSeconds % 60).padStart(2, '0');
   const timeStr = `${mins}:${secs}`;
@@ -35,7 +36,11 @@ export default function VictoryScreen({ teamName, elapsedSeconds, errorCount }: 
   }, [teamName]);
 
   const sendWhatsApp = () => {
-    const msg = `🎓 REPORTE DEL SIMULADOR LOGÍSTICO 🎓\n👤 Estudiante: ${teamName}\n⏱️ Tiempo Total: ${timeStr}\n❌ Errores Cometidos (Pantallas Rojas): ${errorCount}\n🏆 NOTA DEL SISTEMA: ${grade}\n\n¡Hola profe! El sistema certifica que he superado todas las crisis del CEDI y estoy listo/a para mi nota final en la planilla.`;
+    const detailLines = errorLog.length > 0
+      ? errorLog.map(e => `- ${e}`).join('\n')
+      : 'El estudiante demostró dominio absoluto sin fallas operativas';
+
+    const msg = `🎓 REPORTE DEL SIMULADOR LOGÍSTICO 🎓\n👤 Estudiante: ${teamName}\n⏱️ Tiempo Total: ${timeStr}\n🏆 NOTA DEL SISTEMA: ${grade}\n\n❌ CANTIDAD DE ERRORES: ${errorCount}\n\n📋 DETALLE FORENSE DE LAS FALLAS:\n${detailLines}\n\n¡Hola profe! El sistema certifica mi graduación operativa. Adjunto mi bitácora forense de errores para su revisión en la planilla.`;
     window.open(`https://wa.me/573160457000?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
@@ -61,9 +66,26 @@ export default function VictoryScreen({ teamName, elapsedSeconds, errorCount }: 
         </div>
       </div>
 
-      <div className="bg-card border border-border rounded-xl p-6 mb-6 w-full max-w-sm">
+      <div className="bg-card border border-border rounded-xl p-6 mb-4 w-full max-w-sm">
         <p className="text-muted-foreground text-sm mb-1">Nota del Sistema</p>
         <p className="font-display text-3xl text-green-400">{grade}</p>
+      </div>
+
+      {/* Audit Log */}
+      <div className="bg-slate-900 border border-red-500/50 rounded-xl p-4 mb-6 w-full max-w-sm max-h-60 overflow-y-auto">
+        <p className="text-orange-400 font-display text-sm mb-3 tracking-wider">📋 BITÁCORA DE AUDITORÍA LOGÍSTICA</p>
+        {errorLog.length === 0 ? (
+          <p className="text-green-400 text-sm font-mono">✅ Operación impecable. Cero errores de conocimiento registrados.</p>
+        ) : (
+          <ul className="space-y-2">
+            {errorLog.map((entry, i) => (
+              <li key={i} className="text-red-300 text-xs font-mono flex items-start gap-2">
+                <span className="shrink-0">🔴</span>
+                <span>{entry}</span>
+              </li>
+            ))}
+          </ul>
+        )}
       </div>
 
       <button
