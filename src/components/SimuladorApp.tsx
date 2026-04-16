@@ -93,15 +93,15 @@ export default function SimuladorApp() {
   const phaseOrder: Phase[] = [
     'start', 'c1_channel', 'c1_pins', 'c2_channel', 'c2_pins', 'c3_channel', 'c3_pins',
     'c4_builder',
-    'c5_r1', 'c5_r2', 'c5_r3', 'c5_r4', 'c5_r5', 'victory',
+    'c5_r1', 'c5_r2', 'c5_r3', 'c5_r4', 'c5_r5', 'c5_r6', 'victory',
   ];
-  const totalSteps = 13;
+  const totalSteps = 14;
   const phaseConfig: Record<string, number> = {
     c1_channel: 1, c1_pins: 2,
     c2_channel: 3, c2_pins: 4,
     c3_channel: 5, c3_pins: 6,
     c4_builder: 7,
-    c5_r1: 8, c5_r2: 9, c5_r3: 10, c5_r4: 11, c5_r5: 12,
+    c5_r1: 8, c5_r2: 9, c5_r3: 10, c5_r4: 11, c5_r5: 12, c5_r6: 13,
   };
   const progress = ((phaseConfig[phase] || 0) / totalSteps) * 100;
 
