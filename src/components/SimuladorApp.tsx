@@ -241,7 +241,7 @@ export default function SimuladorApp() {
             successVoice="¡Flujo del CEDI asegurado! La cadena de frío se mantuvo intacta. Recepción, Clasificación, Picking y Packing, Despacho. Excelente gestión bajo presión."
             errorExplanation="❌ ¡DESASTRE OPERATIVO! La mercancía se pudrió en el muelle. La teoría de la Red de Distribución es inquebrantable: Todo inicia con la RECEPCIÓN (descarga del camión). Luego, obligatoriamente se hace la CLASIFICACIÓN (por destino o SKU). De ahí pasa a preparación (PICKING Y PACKING, que es el corazón que define la velocidad del CEDI), y finalmente sale a DESPACHO. ¡No puedes inventar atajos! Las flores se marchitaron y las vacunas perdieron la cadena de frío. Operación detenida."
             onSuccess={() => setPhase('c5_r2')}
-            onError={(voice) => triggerPenalty(voice, 'c5_r1', 'Crisis 1 (Perecederos): Cruzó el flujo físico en el CEDI o falló texto de Cadena de Frío')}
+            onError={(voice, detail) => triggerPenalty(voice, 'c5_r1', detail || 'Crisis 1 (Perecederos): Cruzó el flujo físico en el CEDI o falló texto de Cadena de Frío')}
           >
             <Crisis1Console ref={crisis1Ref} />
           </CrisisWrapper>
@@ -257,7 +257,7 @@ export default function SimuladorApp() {
             successVoice="¡Canal configurado correctamente! Megamayorista fraccionando carga y Minoristas TAT vendiendo al detal. 500,000 tiendas cubiertas en 48 horas."
             errorExplanation="❌ ¡EL PRODUCTO NO LLEGÓ A LA GENTE Y PERDIMOS MILLONES! El consumo masivo y económico exige un CANAL LARGO. A mayor cobertura geográfica, necesitas ceder margen a un MAYORISTA que compre en tractomulas y fraccione la carga, entregándosela al MINORISTA (la tienda), quien vende por unidades al detal en cada cuadra. ¡Intentar vender masivo por web o camiones propios es un suicidio logístico! El Agente Aduanero es para comercio internacional, no aplica aquí."
             onSuccess={() => setPhase('c5_r3')}
-            onError={(voice) => triggerPenalty(voice, 'c5_r2', 'Crisis 2 (Masivo): Encendió mal los interruptores o falló texto de Cobertura/Mayorista')}
+            onError={(voice, detail) => triggerPenalty(voice, 'c5_r2', detail || 'Crisis 2 (Masivo): Encendió mal los interruptores o falló texto de Cobertura/Mayorista')}
           >
             <Crisis2Console ref={crisis2Ref} />
           </CrisisWrapper>
@@ -273,7 +273,7 @@ export default function SimuladorApp() {
             successVoice="¡Calibración perfecta! Góndolas al 0% y SKUs mínimos. El Hard Discount es austeridad pura: el rey es el PRECIO. Producto exhibido desde la caja corrugada."
             errorExplanation="❌ ¡QUIEBRA FINANCIERA INMINENTE! No entendiste el ADN del Hard Discount. Su éxito radica en la eficiencia extrema y austeridad: INVERSIÓN EN GÓNDOLAS DEBE SER 0% (se exhibe y vende desde la misma caja de cartón rasgada, sin lujos) y los SKUs deben ser súper limitados (menos de 1,000 — menos variedad significa reabastecimiento más rápido y simple). ¡El rey absoluto aquí es el PRECIO! Si inviertes en lujo o variedad, pierdes la guerra de costos contra D1 y Ara."
             onSuccess={() => setPhase('c5_r4')}
-            onError={(voice) => triggerPenalty(voice, 'c5_r3', 'Crisis 3 (Hard Discount): Le puso lujos a las góndolas o falló texto de Austeridad/Alta Rotación')}
+            onError={(voice, detail) => triggerPenalty(voice, 'c5_r3', detail || 'Crisis 3 (Hard Discount): Le puso lujos a las góndolas o falló texto de Austeridad/Alta Rotación')}
           >
             <Crisis3Console ref={crisis3Ref} />
           </CrisisWrapper>
@@ -289,7 +289,7 @@ export default function SimuladorApp() {
             successVoice="¡Diagnóstico perfecto! 53% del costo logístico total se consume en la Última Milla. Has identificado el hoyo negro financiero."
             errorExplanation="❌ ¡DESCUADRE CONTABLE IMPERDONABLE! Sigues perdiendo plata a chorros. Según la teoría logística y las métricas globales, la Última Milla (Last Mile) representa hasta el 53% del costo total de envío. El tráfico, las calles estrechas, direcciones incorrectas y la ausencia del cliente hacen que cada re-entrega duplique el costo logístico de ese paquete. ¡Es el tramo más corto pero el hoyo negro financiero más letal! Calibra el escáner exactamente en 53%."
             onSuccess={() => setPhase('c5_r5')}
-            onError={(voice) => triggerPenalty(voice, 'c5_r4', 'Crisis 4 (Última Milla): No calibró el 53% exacto o falló texto sobre Tráfico/Reentregas')}
+            onError={(voice, detail) => triggerPenalty(voice, 'c5_r4', detail || 'Crisis 4 (Última Milla): No calibró el 53% exacto o falló texto sobre Tráfico/Reentregas')}
           >
             <Crisis4Console ref={crisis4Ref} />
           </CrisisWrapper>
@@ -305,7 +305,7 @@ export default function SimuladorApp() {
             successVoice="¡RFID activado! Las antenas están leyendo pallets enteros en milisegundos. Trazabilidad total en tiempo real. ¡ERES UN GERENTE LOGÍSTICO NIVEL DIOS!"
             errorExplanation="❌ ¡EL CEDI ESTÁ PARALIZADO POR USAR TECNOLOGÍA OBSOLETA! El código de barras es bueno, pero exige 'línea de vista' (un operario apuntando manualmente). La respuesta que salva la operación es RFID (Identificación por Radiofrecuencia). Permite lectura automática de pallets enteros en milisegundos, sin necesidad de línea de visión directa, brindando trazabilidad en tiempo real a la velocidad de la luz. ¡Actualiza tu mente!"
             onSuccess={() => setPhase('c5_r6')}
-            onError={(voice) => triggerPenalty(voice, 'c5_r5', 'Crisis 5 (Tecnología): Escribió mal RFID o no justificó las ondas/trazabilidad vs vista manual')}
+            onError={(voice, detail) => triggerPenalty(voice, 'c5_r5', detail || 'Crisis 5 (Tecnología): Escribió mal RFID o no justificó las ondas/trazabilidad vs vista manual')}
           >
             <Crisis5Console ref={crisis5Ref} />
           </CrisisWrapper>
@@ -321,7 +321,7 @@ export default function SimuladorApp() {
             successVoice="¡PERFECTO! Picking RECOLECTA, Packing EMPACA. Dominas el idioma del CEDI. ¡Los portones están abiertos, los camiones salen!"
             errorExplanation="❌ ¡CONFUSIÓN GERENCIAL FATAL! \n\nPICKING (del inglés Pick = Recoger/Picar) es el operario que viaja por la bodega recolectando artículos.\n\nPACKING (del inglés Pack = Empacar) es la estación fija donde se arma la caja con burbujas y cinta.\n\n¡Cruzar estos términos es un sacrilegio logístico que te costará millones en devoluciones!"
             onSuccess={() => setPhase('victory')}
-            onError={(voice) => triggerPenalty(voice, 'c5_r6', 'Crisis 6 (Acertijo final): Confundió el rol de Picking (caminar) con Packing (empacar fijo)')}
+            onError={(voice, detail) => triggerPenalty(voice, 'c5_r6', detail || 'Crisis 6 (Acertijo final): Confundió el rol de Picking (caminar) con Packing (empacar fijo)')}
           >
             <Crisis6Console ref={crisis6Ref} />
           </CrisisWrapper>
