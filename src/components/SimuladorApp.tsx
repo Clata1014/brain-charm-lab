@@ -32,6 +32,7 @@ export default function SimuladorApp() {
   const [showPenalty, setShowPenalty] = useState(false);
   const [penaltyVoice, setPenaltyVoice] = useState('');
   const [returnPhase, setReturnPhase] = useState<Phase>('start');
+  const [errorCount, setErrorCount] = useState(0);
 
   const crisis1Ref = useRef<Crisis1Ref>(null);
   const crisis2Ref = useRef<Crisis2Ref>(null);
@@ -53,6 +54,7 @@ export default function SimuladorApp() {
   const triggerPenalty = useCallback((voice: string, returnTo: Phase) => {
     setPenaltyVoice(voice);
     setReturnPhase(returnTo);
+    setErrorCount(prev => prev + 1);
     speak(voice);
     setShowPenalty(true);
   }, []);
@@ -77,7 +79,7 @@ export default function SimuladorApp() {
 
   if (phase === 'victory') {
     const elapsed = Math.floor((Date.now() - startTime) / 1000);
-    return <VictoryScreen teamName={teamName} elapsedSeconds={elapsed} />;
+    return <VictoryScreen teamName={teamName} elapsedSeconds={elapsed} errorCount={errorCount} />;
   }
 
   if (phase === 'start') {
