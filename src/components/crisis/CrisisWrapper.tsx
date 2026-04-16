@@ -1,5 +1,6 @@
 import { useState, useRef, ReactNode } from 'react';
 import { speak } from '@/lib/speech';
+import { detectSpam, SPAM_PENALTY } from '@/lib/keywordValidator';
 import SignatureCanvas from './SignatureCanvas';
 
 interface CrisisWrapperProps {
@@ -33,6 +34,10 @@ export default function CrisisWrapper({
   const handleAuthorize = () => {
     if (justification.trim().length < 40) {
       alert('⚠️ Tu justificación gerencial debe tener al menos 40 caracteres. Explica tu razonamiento.');
+      return;
+    }
+    if (detectSpam(justification)) {
+      onError(SPAM_PENALTY);
       return;
     }
     if (!hasSigRef.current) {
