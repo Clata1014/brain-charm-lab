@@ -172,13 +172,19 @@ export default function ChannelBuilder({ onVictory, onError }: ChannelBuilderPro
       }
       // Anti-cheat: spam detection
       if (detectSpam(report)) {
-        if (onError) onError(SPAM_PENALTY);
+        if (onError) onError(SPAM_PENALTY, 'Intento de Fraude: Relleno de texto con letras repetidas sin sentido');
         return;
       }
       // Keyword validation for specific products
       const kwFail = validateKeywords(report, currentProduct);
       if (kwFail) {
-        if (onError) onError(kwFail);
+        const productNames = ['Papel', 'Celulares', 'Software', 'Químicos'];
+        const detail = currentProduct === 0
+          ? 'Fase 4 (Papel): No justificó la relación de Volumen / Flete / Mayorista'
+          : currentProduct === 1
+          ? 'Fase 4 (Celulares): No justificó el Riesgo / Seguridad / Canal Corto'
+          : `Fase 4 (${productNames[currentProduct]}): Reporte gerencial rechazado por falta de rigor técnico`;
+        if (onError) onError(kwFail, detail);
         return;
       }
       setStep(3);
