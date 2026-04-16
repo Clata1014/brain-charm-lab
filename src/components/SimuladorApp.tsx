@@ -14,6 +14,7 @@ import Crisis2Console, { Crisis2Ref } from './crisis/Crisis2Console';
 import Crisis3Console, { Crisis3Ref } from './crisis/Crisis3Console';
 import Crisis4Console, { Crisis4Ref } from './crisis/Crisis4Console';
 import Crisis5Console, { Crisis5Ref } from './crisis/Crisis5Console';
+import Crisis6Console, { Crisis6Ref } from './crisis/Crisis6Console';
 
 type Phase =
   | 'start'
@@ -21,7 +22,7 @@ type Phase =
   | 'c2_channel' | 'c2_pins'
   | 'c3_channel' | 'c3_pins'
   | 'c4_builder'
-  | 'c5_r1' | 'c5_r2' | 'c5_r3' | 'c5_r4' | 'c5_r5'
+  | 'c5_r1' | 'c5_r2' | 'c5_r3' | 'c5_r4' | 'c5_r5' | 'c5_r6'
   | 'victory';
 
 export default function SimuladorApp() {
@@ -37,6 +38,7 @@ export default function SimuladorApp() {
   const crisis3Ref = useRef<Crisis3Ref>(null);
   const crisis4Ref = useRef<Crisis4Ref>(null);
   const crisis5Ref = useRef<Crisis5Ref>(null);
+  const crisis6Ref = useRef<Crisis6Ref>(null);
 
   const handleStart = () => {
     if (!teamName.trim()) return;
@@ -62,7 +64,7 @@ export default function SimuladorApp() {
 
   // Timer click bypass: cycle through phases
   const handleTimerClick = () => {
-    const skipOrder: Phase[] = ['c1_channel', 'c2_channel', 'c3_channel', 'c4_builder', 'c5_r1', 'victory'];
+    const skipOrder: Phase[] = ['c1_channel', 'c2_channel', 'c3_channel', 'c4_builder', 'c5_r1', 'c5_r6', 'victory'];
     const idx = skipOrder.indexOf(phase);
     if (idx >= 0 && idx < skipOrder.length - 1) {
       setPhase(skipOrder[idx + 1]);
@@ -298,10 +300,26 @@ export default function SimuladorApp() {
             validateGame={() => crisis5Ref.current?.validate() ?? false}
             successVoice="¡RFID activado! Las antenas están leyendo pallets enteros en milisegundos. Trazabilidad total en tiempo real. ¡ERES UN GERENTE LOGÍSTICO NIVEL DIOS!"
             errorExplanation="❌ ¡EL CEDI ESTÁ PARALIZADO POR USAR TECNOLOGÍA OBSOLETA! El código de barras es bueno, pero exige 'línea de vista' (un operario apuntando manualmente). La respuesta que salva la operación es RFID (Identificación por Radiofrecuencia). Permite lectura automática de pallets enteros en milisegundos, sin necesidad de línea de visión directa, brindando trazabilidad en tiempo real a la velocidad de la luz. ¡Actualiza tu mente!"
-            onSuccess={() => setPhase('victory')}
+            onSuccess={() => setPhase('c5_r6')}
             onError={(voice) => triggerPenalty(voice, 'c5_r5')}
           >
             <Crisis5Console ref={crisis5Ref} />
+          </CrisisWrapper>
+        )}
+
+        {phase === 'c5_r6' && (
+          <CrisisWrapper
+            crisisNumber={6}
+            icon="🚨"
+            title="EL ACERTIJO DE LOS GEMELOS OPERATIVOS — Picking vs Packing"
+            dossier={'¡Alto ahí, Gerente! Para abrir los portones del CEDI, despachar los camiones y graduarte, el auditor jefe te exige resolver el último gran acertijo para demostrar que dominas el idioma de la bodega.'}
+            validateGame={() => crisis6Ref.current?.validate() ?? false}
+            successVoice="¡PERFECTO! Picking RECOLECTA, Packing EMPACA. Dominas el idioma del CEDI. ¡Los portones están abiertos, los camiones salen!"
+            errorExplanation="❌ ¡CONFUSIÓN GERENCIAL FATAL! \n\nPICKING (del inglés Pick = Recoger/Picar) es el operario que viaja por la bodega recolectando artículos.\n\nPACKING (del inglés Pack = Empacar) es la estación fija donde se arma la caja con burbujas y cinta.\n\n¡Cruzar estos términos es un sacrilegio logístico que te costará millones en devoluciones!"
+            onSuccess={() => setPhase('victory')}
+            onError={(voice) => triggerPenalty(voice, 'c5_r6')}
+          >
+            <Crisis6Console ref={crisis6Ref} />
           </CrisisWrapper>
         )}
       </main>
