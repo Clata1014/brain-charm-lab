@@ -1,6 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { Factory, Home, Warehouse, ShoppingCart, Cloud, Truck, Zap, RotateCcw, Eraser, AlertTriangle } from 'lucide-react';
-import { validateKeywords, detectSpam, SPAM_PENALTY } from '@/lib/keywordValidator';
+import { validateKeywords, detectSpam, SPAM_PENALTY, buildNLPErrorDetail } from '@/lib/keywordValidator';
 
 type NodeType = 'fabrica' | 'mayorista' | 'minorista' | 'nube' | 'flete' | 'cliente';
 
@@ -174,19 +174,15 @@ export default function ChannelBuilder({ onVictory, onError, startProduct = 0, o
       }
       // Anti-cheat: spam detection
       if (detectSpam(report)) {
-        if (onError) onError(SPAM_PENALTY, 'Intento de Fraude: Relleno de texto con letras repetidas sin sentido');
+        const truncatedText = report.length > 200 ? report.slice(0, 200) + '...' : report;
+        if (onError) onError(SPAM_PENALTY, `❌ FASE 4: ${product.title}\n🚫 INTENTO DE FRAUDE\n✍️ LO QUE TÚ ESCRIBISTE: "${truncatedText}"\n📊 ANÁLISIS: El sistema detectó caracteres repetitivos consecutivos (regex anti-trampa). Esto evidencia relleno de texto sin contenido académico.`);
         return;
       }
-      // Keyword validation for specific products
+      // Keyword validation with NLP analysis
       const kwFail = validateKeywords(report, currentProduct);
       if (kwFail) {
-        const productNames = ['Papel', 'Celulares', 'Software', 'Químicos'];
-        const detail = currentProduct === 0
-          ? 'Fase 4 (Papel): No justificó la relación de Volumen / Flete / Mayorista'
-          : currentProduct === 1
-          ? 'Fase 4 (Celulares): No justificó el Riesgo / Seguridad / Canal Corto'
-          : `Fase 4 (${productNames[currentProduct]}): Reporte gerencial rechazado por falta de rigor técnico`;
-        if (onError) onError(kwFail, detail);
+        const nlpDetail = buildNLPErrorDetail(report, currentProduct, product.title);
+        if (onError) onError(kwFail, nlpDetail || `❌ FASE 4: ${product.title}\n✍️ Reporte gerencial rechazado por falta de rigor técnico.`);
         return;
       }
       setStep(3);
@@ -214,8 +210,12 @@ export default function ChannelBuilder({ onVictory, onError, startProduct = 0, o
           resetAll();
         }
       } else {
+        const studentRoute = route.map(n => NODE_OPTIONS.find(o => o.type === n)?.label || n).join(' ➔ ');
+        const correctRoute = product.correctRoute.map(n => NODE_OPTIONS.find(o => o.type === n)?.label || n).join(' ➔ ');
+        const truncatedReport = report.length > 200 ? report.slice(0, 200) + '...' : report;
+        const detail = `❌ FASE 4: ${product.title}\n🗺️ TU RUTA ARMADA: ${studentRoute}\n🎯 RUTA CORRECTA EXIGIDA: ${correctRoute}\n✍️ TU JUSTIFICACIÓN: "${truncatedReport}"\n✅ POR QUÉ: ${product.failMessage.replace('❌ ', '')}`;
         if (onError) {
-          onError(product.failMessage, 'Fase 4: Armó mal la ruta de eslabones visuales para ' + product.title);
+          onError(product.failMessage, detail);
         }
         resetAll();
       }
