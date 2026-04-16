@@ -60,10 +60,12 @@ const NODE_OPTIONS: { type: NodeType; emoji: string; label: string; icon: typeof
 interface ChannelBuilderProps {
   onVictory: () => void;
   onError?: (voice: string, detail?: string) => void;
+  startProduct?: number;
+  onProductAdvance?: (nextIdx: number) => void;
 }
 
-export default function ChannelBuilder({ onVictory, onError }: ChannelBuilderProps) {
-  const [currentProduct, setCurrentProduct] = useState(0);
+export default function ChannelBuilder({ onVictory, onError, startProduct = 0, onProductAdvance }: ChannelBuilderProps) {
+  const [currentProduct, setCurrentProduct] = useState(startProduct);
   const [route, setRoute] = useState<NodeType[]>([]);
   const [report, setReport] = useState('');
   const [step, setStep] = useState<1 | 2 | 3>(1);
