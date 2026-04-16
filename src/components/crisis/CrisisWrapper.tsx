@@ -13,7 +13,7 @@ interface CrisisWrapperProps {
   successVoice: string;
   errorExplanation: string;
   onSuccess: () => void;
-  onError: (voice: string) => void;
+  onError: (voice: string, detail?: string) => void;
 }
 
 export default function CrisisWrapper({
@@ -37,7 +37,7 @@ export default function CrisisWrapper({
       return;
     }
     if (detectSpam(justification)) {
-      onError(SPAM_PENALTY);
+      onError(SPAM_PENALTY, 'Intento de Fraude: Relleno de texto con letras repetidas sin sentido');
       return;
     }
     if (!hasSigRef.current) {
