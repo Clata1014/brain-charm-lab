@@ -205,15 +205,15 @@ export default function ChannelBuilder({ onVictory, onError, startProduct = 0, o
       const isCorrect = route.length === correct.length && route.every((n, i) => n === correct[i]);
 
       if (isCorrect) {
-        // Success → next product or victory
         if (currentProduct >= PRODUCTS.length - 1) {
           onVictory();
         } else {
-          setCurrentProduct(prev => prev + 1);
+          const nextIdx = currentProduct + 1;
+          setCurrentProduct(nextIdx);
+          if (onProductAdvance) onProductAdvance(nextIdx);
           resetAll();
         }
       } else {
-        // Fail → penalty
         if (onError) {
           onError(product.failMessage, 'Fase 4: Armó mal la ruta de eslabones visuales para ' + product.title);
         }
