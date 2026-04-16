@@ -10,6 +10,7 @@ interface CrisisWrapperProps {
   dossier: string;
   children: ReactNode;
   validateGame: () => boolean;
+  getGameStateDescription?: () => string;
   successVoice: string;
   errorExplanation: string;
   onSuccess: () => void;
@@ -23,6 +24,7 @@ export default function CrisisWrapper({
   dossier,
   children,
   validateGame,
+  getGameStateDescription,
   successVoice,
   errorExplanation,
   onSuccess,
@@ -37,7 +39,7 @@ export default function CrisisWrapper({
       return;
     }
     if (detectSpam(justification)) {
-      onError(SPAM_PENALTY, 'Intento de Fraude: Relleno de texto con letras repetidas sin sentido');
+      onError(SPAM_PENALTY, `❌ CRISIS ${crisisNumber}: ${title}\n🚫 INTENTO DE FRAUDE\n✍️ LO QUE TÚ ESCRIBISTE: "${justification.slice(0, 200)}"\n📊 ANÁLISIS: El sistema detectó caracteres repetitivos consecutivos (regex anti-trampa). Esto evidencia relleno de texto sin contenido académico.`);
       return;
     }
     if (!hasSigRef.current) {
@@ -48,7 +50,11 @@ export default function CrisisWrapper({
       speak(successVoice);
       onSuccess();
     } else {
-      onError(errorExplanation);
+      // Build hyper-detailed error
+      const stateDesc = getGameStateDescription ? getGameStateDescription() : '';
+      const truncatedText = justification.length > 200 ? justification.slice(0, 200) + '...' : justification;
+      const detail = `❌ CRISIS ${crisisNumber}: ${title}\n✍️ TU JUSTIFICACIÓN: "${truncatedText}"\n${stateDesc}`;
+      onError(errorExplanation, detail);
     }
   };
 
@@ -60,7 +66,7 @@ export default function CrisisWrapper({
           {icon}
         </div>
         <div>
-          <p className="text-[10px] font-mono text-red-400 uppercase tracking-widest">Crisis {crisisNumber} de 5</p>
+          <p className="text-[10px] font-mono text-red-400 uppercase tracking-widest">Crisis {crisisNumber} de 6</p>
           <h2 className="font-display text-sm text-orange-400 leading-tight">{title}</h2>
         </div>
       </div>

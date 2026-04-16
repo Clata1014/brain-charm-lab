@@ -37,10 +37,10 @@ export default function VictoryScreen({ teamName, elapsedSeconds, errorCount, er
 
   const sendWhatsApp = () => {
     const detailLines = errorLog.length > 0
-      ? errorLog.map(e => `- ${e}`).join('\n')
+      ? errorLog.join('\n\n====================\n\n')
       : 'El estudiante demostró dominio absoluto sin fallas operativas';
 
-    const msg = `🎓 REPORTE DEL SIMULADOR LOGÍSTICO 🎓\n👤 Estudiante: ${teamName}\n⏱️ Tiempo Total: ${timeStr}\n🏆 NOTA DEL SISTEMA: ${grade}\n\n❌ CANTIDAD DE ERRORES: ${errorCount}\n\n📋 DETALLE FORENSE DE LAS FALLAS:\n${detailLines}\n\n¡Hola profe! El sistema certifica mi graduación operativa. Adjunto mi bitácora forense de errores para su revisión en la planilla.`;
+    const msg = `🎓 REPORTE DEL SIMULADOR LOGÍSTICO 🎓\n👤 Estudiante: ${teamName}\n⏱️ Tiempo Total: ${timeStr}\n🏆 NOTA DEL SISTEMA: ${grade}\n\n❌ CANTIDAD DE ERRORES: ${errorCount}\n\n📋 DETALLE FORENSE DE LAS FALLAS:\n\n${detailLines}\n\n¡Hola profe! El sistema certifica mi graduación operativa. Adjunto mi bitácora forense de errores para su revisión en la planilla.`;
     window.open(`https://wa.me/573160457000?text=${encodeURIComponent(msg)}`, '_blank');
   };
 
@@ -72,19 +72,19 @@ export default function VictoryScreen({ teamName, elapsedSeconds, errorCount, er
       </div>
 
       {/* Audit Log */}
-      <div className="bg-slate-900 border border-red-500/50 rounded-xl p-4 mb-6 w-full max-w-sm max-h-60 overflow-y-auto">
+      <div className="bg-slate-900 border border-red-500/50 rounded-xl p-4 mb-6 w-full max-w-sm max-h-[500px] overflow-y-auto">
         <p className="text-orange-400 font-display text-sm mb-3 tracking-wider">📋 BITÁCORA DE AUDITORÍA LOGÍSTICA</p>
         {errorLog.length === 0 ? (
           <p className="text-green-400 text-sm font-mono">✅ Operación impecable. Cero errores de conocimiento registrados.</p>
         ) : (
-          <ul className="space-y-2">
+          <div className="space-y-3">
             {errorLog.map((entry, i) => (
-              <li key={i} className="text-red-300 text-xs font-mono flex items-start gap-2">
-                <span className="shrink-0">🔴</span>
-                <span>{entry}</span>
-              </li>
+              <div key={i} className="whitespace-pre-wrap text-sm leading-relaxed text-gray-300 bg-slate-800/80 p-4 rounded border-l-4 border-red-500">
+                <span className="text-red-400 font-bold text-xs">🔴 Error #{i + 1}</span>
+                <div className="mt-1">{entry}</div>
+              </div>
             ))}
-          </ul>
+          </div>
         )}
       </div>
 

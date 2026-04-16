@@ -7,7 +7,10 @@ const SWITCHES = [
   { id: 'web', label: 'Página Web / Venta Directa' },
 ];
 
-export interface Crisis2Ref { validate: () => boolean; }
+export interface Crisis2Ref {
+  validate: () => boolean;
+  getStateDescription: () => string;
+}
 
 const Crisis2Console = forwardRef<Crisis2Ref>((_, ref) => {
   const [state, setState] = useState<Record<string, boolean>>({
@@ -16,6 +19,11 @@ const Crisis2Console = forwardRef<Crisis2Ref>((_, ref) => {
 
   useImperativeHandle(ref, () => ({
     validate: () => state.mayorista && state.minorista && !state.aduanero && !state.web,
+    getStateDescription: () => {
+      const on = SWITCHES.filter(sw => state[sw.id]).map(sw => sw.label);
+      const off = SWITCHES.filter(sw => !state[sw.id]).map(sw => sw.label);
+      return `🎛️ TU CONFIGURACIÓN:\n  ✅ Encendidos: ${on.length > 0 ? on.join(', ') : '(ninguno)'}\n  ❌ Apagados: ${off.length > 0 ? off.join(', ') : '(ninguno)'}\n🎯 CORRECTO: Solo Megamayorista + Minorista TAT encendidos.\n✅ POR QUÉ: El consumo masivo económico exige Canal Largo. El Mayorista fracciona la carga de tractomulas y el Minorista (tienda TAT) vende al detal en cada cuadra. El Aduanero es para comercio internacional y la Web no sirve para cobertura masiva de 500,000 tiendas.`;
+    },
   }));
 
   const toggle = (id: string) => setState(prev => ({ ...prev, [id]: !prev[id] }));

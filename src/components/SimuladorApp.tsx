@@ -261,6 +261,7 @@ export default function SimuladorApp() {
             title="COLAPSO DE PERECEDEROS — Flujo del CEDI"
             dossier={'¡Alerta Gerencial! Son las 3:00 AM. Acaban de llegar 15 tractomulas con flores y vacunas (perecederos críticos). Los operarios son nuevos, el muelle es un caos y están cruzando los procesos. Si la mercancía pierde la cadena de frío, quebramos.\n\nToma el control del panel WMS y organiza el flujo físico de la mercancía en su orden lógico estricto. Un error aquí significa millones en pérdidas y vidas en riesgo.'}
             validateGame={() => crisis1Ref.current?.validate() ?? false}
+            getGameStateDescription={() => crisis1Ref.current?.getStateDescription() ?? ''}
             successVoice="¡Flujo del CEDI asegurado! La cadena de frío se mantuvo intacta. Recepción, Clasificación, Picking y Packing, Despacho. Excelente gestión bajo presión."
             errorExplanation="❌ ¡DESASTRE OPERATIVO! La mercancía se pudrió en el muelle. La teoría de la Red de Distribución es inquebrantable: Todo inicia con la RECEPCIÓN (descarga del camión). Luego, obligatoriamente se hace la CLASIFICACIÓN (por destino o SKU). De ahí pasa a preparación (PICKING Y PACKING, que es el corazón que define la velocidad del CEDI), y finalmente sale a DESPACHO. ¡No puedes inventar atajos! Las flores se marchitaron y las vacunas perdieron la cadena de frío. Operación detenida."
             onSuccess={() => setPhase('c5_r2')}
@@ -277,6 +278,7 @@ export default function SimuladorApp() {
             title="LA GUERRA DEL CONSUMO MASIVO — Canales"
             dossier={'La Junta Directiva está histérica. Lanzamos una nueva bebida económica para competir con Postobón, pero Finanzas exige que el producto esté en el 100% de las 500,000 tiendas de barrio (TAT) del país en 48 horas. Tu presupuesto para camiones propios es CERO.\n\nConfigura el enrutador de canales encendiendo (ON) SOLO a los eslabones logísticos indispensables para lograr esta hazaña. Un interruptor de más o de menos y la operación colapsa.'}
             validateGame={() => crisis2Ref.current?.validate() ?? false}
+            getGameStateDescription={() => crisis2Ref.current?.getStateDescription() ?? ''}
             successVoice="¡Canal configurado correctamente! Megamayorista fraccionando carga y Minoristas TAT vendiendo al detal. 500,000 tiendas cubiertas en 48 horas."
             errorExplanation="❌ ¡EL PRODUCTO NO LLEGÓ A LA GENTE Y PERDIMOS MILLONES! El consumo masivo y económico exige un CANAL LARGO. A mayor cobertura geográfica, necesitas ceder margen a un MAYORISTA que compre en tractomulas y fraccione la carga, entregándosela al MINORISTA (la tienda), quien vende por unidades al detal en cada cuadra. ¡Intentar vender masivo por web o camiones propios es un suicidio logístico! El Agente Aduanero es para comercio internacional, no aplica aquí."
             onSuccess={() => setPhase('c5_r3')}
@@ -293,6 +295,7 @@ export default function SimuladorApp() {
             title="REESTRUCTURACIÓN HARD DISCOUNT — Formatos"
             dossier={'Acabamos de comprar un supermercado tradicional en quiebra y tu misión es convertirlo en un formato Hard Discount (estilo Tiendas D1 o Ara). El equipo de marketing quiere poner pisos de mármol y traer 20,000 marcas diferentes.\n\nPara lograr rentabilidad y destrozar a la competencia con precios bajos, debes calibrar los parámetros financieros a sus niveles óptimos. Un mal calibre y serás despedido por la Junta Directiva.'}
             validateGame={() => crisis3Ref.current?.validate() ?? false}
+            getGameStateDescription={() => crisis3Ref.current?.getStateDescription() ?? ''}
             successVoice="¡Calibración perfecta! Góndolas al 0% y SKUs mínimos. El Hard Discount es austeridad pura: el rey es el PRECIO. Producto exhibido desde la caja corrugada."
             errorExplanation="❌ ¡QUIEBRA FINANCIERA INMINENTE! No entendiste el ADN del Hard Discount. Su éxito radica en la eficiencia extrema y austeridad: INVERSIÓN EN GÓNDOLAS DEBE SER 0% (se exhibe y vende desde la misma caja de cartón rasgada, sin lujos) y los SKUs deben ser súper limitados (menos de 1,000 — menos variedad significa reabastecimiento más rápido y simple). ¡El rey absoluto aquí es el PRECIO! Si inviertes en lujo o variedad, pierdes la guerra de costos contra D1 y Ara."
             onSuccess={() => setPhase('c5_r4')}
@@ -309,6 +312,7 @@ export default function SimuladorApp() {
             title="LA HEMORRAGIA URBANA — Última Milla"
             dossier={'Auditoría urgente al departamento de E-commerce. Las ventas por página web están rompiendo récords, pero los márgenes de ganancia desaparecieron. El contador sospecha de la logística urbana.\n\nMueve el escáner de precisión para identificar QUÉ PORCENTAJE EXACTO del costo total logístico se está evaporando únicamente en el tramo final de entrega domiciliaria. Un porcentaje mal calibrado y seguirás perdiendo millones.'}
             validateGame={() => crisis4Ref.current?.validate() ?? false}
+            getGameStateDescription={() => crisis4Ref.current?.getStateDescription() ?? ''}
             successVoice="¡Diagnóstico perfecto! 53% del costo logístico total se consume en la Última Milla. Has identificado el hoyo negro financiero."
             errorExplanation="❌ ¡DESCUADRE CONTABLE IMPERDONABLE! Sigues perdiendo plata a chorros. Según la teoría logística y las métricas globales, la Última Milla (Last Mile) representa hasta el 53% del costo total de envío. El tráfico, las calles estrechas, direcciones incorrectas y la ausencia del cliente hacen que cada re-entrega duplique el costo logístico de ese paquete. ¡Es el tramo más corto pero el hoyo negro financiero más letal! Calibra el escáner exactamente en 53%."
             onSuccess={() => setPhase('c5_r5')}
@@ -325,6 +329,7 @@ export default function SimuladorApp() {
             title="HACKEO DEL INVENTARIO — Tecnología"
             dossier={'¡Viernes de Black Friday! Tenemos 10,000 pallets represados en los muelles de salida. El sistema láser de código de barras colapsó y leer visualmente caja por caja nos tomará un mes.\n\nExiste una tecnología militar adaptada al CEDI que lee cientos de cajas automáticamente por ondas electromagnéticas, sin línea de visión, al pasar por un arco. Digita su sigla de 4 letras para encender las antenas y salvar la operación.'}
             validateGame={() => crisis5Ref.current?.validate() ?? false}
+            getGameStateDescription={() => crisis5Ref.current?.getStateDescription() ?? ''}
             successVoice="¡RFID activado! Las antenas están leyendo pallets enteros en milisegundos. Trazabilidad total en tiempo real. ¡ERES UN GERENTE LOGÍSTICO NIVEL DIOS!"
             errorExplanation="❌ ¡EL CEDI ESTÁ PARALIZADO POR USAR TECNOLOGÍA OBSOLETA! El código de barras es bueno, pero exige 'línea de vista' (un operario apuntando manualmente). La respuesta que salva la operación es RFID (Identificación por Radiofrecuencia). Permite lectura automática de pallets enteros en milisegundos, sin necesidad de línea de visión directa, brindando trazabilidad en tiempo real a la velocidad de la luz. ¡Actualiza tu mente!"
             onSuccess={() => setPhase('c5_r6')}
@@ -341,6 +346,7 @@ export default function SimuladorApp() {
             title="EL ACERTIJO DE LOS GEMELOS OPERATIVOS — Picking vs Packing"
             dossier={'¡Alto ahí, Gerente! Para abrir los portones del CEDI, despachar los camiones y graduarte, el auditor jefe te exige resolver el último gran acertijo para demostrar que dominas el idioma de la bodega.'}
             validateGame={() => crisis6Ref.current?.validate() ?? false}
+            getGameStateDescription={() => crisis6Ref.current?.getStateDescription() ?? ''}
             successVoice="¡PERFECTO! Picking RECOLECTA, Packing EMPACA. Dominas el idioma del CEDI. ¡Los portones están abiertos, los camiones salen!"
             errorExplanation="❌ ¡CONFUSIÓN GERENCIAL FATAL! \n\nPICKING (del inglés Pick = Recoger/Picar) es el operario que viaja por la bodega recolectando artículos.\n\nPACKING (del inglés Pack = Empacar) es la estación fija donde se arma la caja con burbujas y cinta.\n\n¡Cruzar estos términos es un sacrilegio logístico que te costará millones en devoluciones!"
             onSuccess={() => setPhase('victory')}
