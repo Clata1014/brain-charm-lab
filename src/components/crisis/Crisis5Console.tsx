@@ -1,6 +1,9 @@
 import { useState, forwardRef, useImperativeHandle, useEffect } from 'react';
 
-export interface Crisis5Ref { validate: () => boolean; }
+export interface Crisis5Ref {
+  validate: () => boolean;
+  getStateDescription: () => string;
+}
 
 const Crisis5Console = forwardRef<Crisis5Ref>((_, ref) => {
   const [input, setInput] = useState('');
@@ -8,6 +11,9 @@ const Crisis5Console = forwardRef<Crisis5Ref>((_, ref) => {
 
   useImperativeHandle(ref, () => ({
     validate: () => input.trim().toLowerCase() === 'rfid',
+    getStateDescription: () => {
+      return `⌨️ TU RESPUESTA: "${input.trim() || '(vacío)'}"\n🎯 CORRECTO: RFID\n✅ POR QUÉ: RFID (Identificación por Radiofrecuencia) permite lectura automática de pallets enteros en milisegundos mediante ondas electromagnéticas, sin necesidad de línea de visión directa. Supera al código de barras que exige apuntar manualmente caja por caja.`;
+    },
   }));
 
   useEffect(() => {

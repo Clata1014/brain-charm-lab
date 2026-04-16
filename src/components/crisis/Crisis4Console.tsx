@@ -1,12 +1,18 @@
 import { useState, forwardRef, useImperativeHandle } from 'react';
 
-export interface Crisis4Ref { validate: () => boolean; }
+export interface Crisis4Ref {
+  validate: () => boolean;
+  getStateDescription: () => string;
+}
 
 const Crisis4Console = forwardRef<Crisis4Ref>((_, ref) => {
   const [value, setValue] = useState(50);
 
   useImperativeHandle(ref, () => ({
     validate: () => value === 53,
+    getStateDescription: () => {
+      return `🎛️ TU CALIBRACIÓN: ${value}%\n🎯 CORRECTO: 53% exacto.\n✅ POR QUÉ: La Última Milla (Last Mile) representa hasta el 53% del costo total logístico. Es el tramo más corto pero el más ineficiente: tráfico urbano, calles estrechas, direcciones incorrectas y la ausencia del cliente generan re-entregas que duplican el costo de cada paquete.`;
+    },
   }));
 
   return (

@@ -1,6 +1,9 @@
 import { useState, forwardRef, useImperativeHandle } from 'react';
 
-export interface Crisis6Ref { validate: () => boolean; }
+export interface Crisis6Ref {
+  validate: () => boolean;
+  getStateDescription: () => string;
+}
 
 const Crisis6Console = forwardRef<Crisis6Ref>((_, ref) => {
   const [card1, setCard1] = useState('');
@@ -8,6 +11,10 @@ const Crisis6Console = forwardRef<Crisis6Ref>((_, ref) => {
 
   useImperativeHandle(ref, () => ({
     validate: () => card1 === 'picking' && card2 === 'packing',
+    getStateDescription: () => {
+      const labels: Record<string, string> = { picking: 'PICKING', packing: 'PACKING', '': '(sin seleccionar)' };
+      return `🃏 TUS RESPUESTAS:\n  Gemelo A (el viajero): ${labels[card1] || card1}\n  Gemelo B (el empacador): ${labels[card2] || card2}\n🎯 CORRECTO: Gemelo A = PICKING, Gemelo B = PACKING\n✅ POR QUÉ: PICKING (Pick = Recoger) es el operario que CAMINA por la bodega recolectando artículos. PACKING (Pack = Empacar) es la estación FIJA donde se arma la caja con burbujas y cinta. Cruzarlos genera devoluciones millonarias.`;
+    },
   }));
 
   const options = [
@@ -18,7 +25,6 @@ const Crisis6Console = forwardRef<Crisis6Ref>((_, ref) => {
 
   return (
     <div className="space-y-4">
-      {/* Card 1 */}
       <div className="bg-slate-800 border border-orange-500/30 rounded-xl p-5 shadow-lg">
         <div className="text-orange-300 text-lg font-bold mb-2">🧭 Gemelo A</div>
         <p className="text-slate-300 text-sm leading-relaxed mb-4">
@@ -35,7 +41,6 @@ const Crisis6Console = forwardRef<Crisis6Ref>((_, ref) => {
         </select>
       </div>
 
-      {/* Card 2 */}
       <div className="bg-slate-800 border border-cyan-500/30 rounded-xl p-5 shadow-lg">
         <div className="text-cyan-300 text-lg font-bold mb-2">📦 Gemelo B</div>
         <p className="text-slate-300 text-sm leading-relaxed mb-4">

@@ -1,6 +1,9 @@
 import { useState, forwardRef, useImperativeHandle } from 'react';
 
-export interface Crisis3Ref { validate: () => boolean; }
+export interface Crisis3Ref {
+  validate: () => boolean;
+  getStateDescription: () => string;
+}
 
 const Crisis3Console = forwardRef<Crisis3Ref>((_, ref) => {
   const [gondolas, setGondolas] = useState(50);
@@ -8,6 +11,9 @@ const Crisis3Console = forwardRef<Crisis3Ref>((_, ref) => {
 
   useImperativeHandle(ref, () => ({
     validate: () => gondolas === 0 && skus < 1000,
+    getStateDescription: () => {
+      return `🎛️ TU CONFIGURACIÓN: Lujos al ${gondolas}% y ${skus.toLocaleString()} SKUs.\n🎯 CORRECTO: 0% Lujos y portafolio súper limitado (<1,000 SKUs).\n✅ POR QUÉ: El formato Hard Discount exige austeridad total. Se exhibe y vende desde la misma caja de cartón rasgada (0% góndolas lujosas). Menos variedad de SKUs = reabastecimiento más rápido, alta rotación y precios imbatibles. El rey absoluto es el PRECIO.`;
+    },
   }));
 
   return (

@@ -3,13 +3,21 @@ import { useState, useCallback, forwardRef, useImperativeHandle } from 'react';
 const NODES = ['Despacho', 'Recepción', 'Picking y Packing', 'Clasificación'];
 const CORRECT = ['Recepción', 'Clasificación', 'Picking y Packing', 'Despacho'];
 
-export interface Crisis1Ref { validate: () => boolean; }
+export interface Crisis1Ref {
+  validate: () => boolean;
+  getStateDescription: () => string;
+}
 
 const Crisis1Console = forwardRef<Crisis1Ref>((_, ref) => {
   const [chain, setChain] = useState<string[]>([]);
 
   useImperativeHandle(ref, () => ({
     validate: () => chain.length === 4 && chain.every((n, i) => n === CORRECT[i]),
+    getStateDescription: () => {
+      const studentFlow = chain.length > 0 ? chain.join(' ➔ ') : '(vacío)';
+      const correctFlow = CORRECT.join(' ➔ ');
+      return `🗺️ TU FLUJO ARMADO: ${studentFlow}\n🎯 FLUJO CORRECTO EXIGIDO: ${correctFlow}\n✅ POR QUÉ: El flujo físico del CEDI es inquebrantable: Recepción (descarga) ➔ Clasificación (por destino/SKU) ➔ Picking y Packing (preparación de pedidos) ➔ Despacho (carga a camiones). Saltarse un paso destruye la cadena de frío y genera pérdidas millonarias.`;
+    },
   }));
 
   const addNode = (node: string) => {
@@ -38,7 +46,6 @@ const Crisis1Console = forwardRef<Crisis1Ref>((_, ref) => {
         ))}
       </div>
 
-      {/* Visual chain */}
       <div className="bg-slate-900 rounded-lg p-4 min-h-[80px] border border-slate-700">
         {chain.length === 0 ? (
           <p className="text-slate-600 text-xs font-mono text-center">[ Flujo vacío — toca los nodos para construir la secuencia ]</p>
