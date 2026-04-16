@@ -37,7 +37,7 @@ export default function CrisisWrapper({
       return;
     }
     if (detectSpam(justification)) {
-      onError(SPAM_PENALTY);
+      onError(SPAM_PENALTY, 'Intento de Fraude: Relleno de texto con letras repetidas sin sentido');
       return;
     }
     if (!hasSigRef.current) {
