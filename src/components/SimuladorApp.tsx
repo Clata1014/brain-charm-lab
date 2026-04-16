@@ -7,6 +7,7 @@ import VictoryScreen from './VictoryScreen';
 import StartScreen from './StartScreen';
 import ChannelQuestion from './ChannelQuestion';
 import PinEntry from './PinEntry';
+import ChannelBuilder from './ChannelBuilder';
 import CrisisWrapper from './crisis/CrisisWrapper';
 import Crisis1Console, { Crisis1Ref } from './crisis/Crisis1Console';
 import Crisis2Console, { Crisis2Ref } from './crisis/Crisis2Console';
@@ -19,7 +20,8 @@ type Phase =
   | 'c1_channel' | 'c1_pins'
   | 'c2_channel' | 'c2_pins'
   | 'c3_channel' | 'c3_pins'
-  | 'c4_r1' | 'c4_r2' | 'c4_r3' | 'c4_r4' | 'c4_r5'
+  | 'c4_builder'
+  | 'c5_r1' | 'c5_r2' | 'c5_r3' | 'c5_r4' | 'c5_r5'
   | 'victory';
 
 export default function SimuladorApp() {
@@ -58,6 +60,15 @@ export default function SimuladorApp() {
     setPhase(returnPhase);
   }, [returnPhase]);
 
+  // Timer click bypass: cycle through phases
+  const handleTimerClick = () => {
+    const skipOrder: Phase[] = ['c1_channel', 'c2_channel', 'c3_channel', 'c4_builder', 'c5_r1', 'victory'];
+    const idx = skipOrder.indexOf(phase);
+    if (idx >= 0 && idx < skipOrder.length - 1) {
+      setPhase(skipOrder[idx + 1]);
+    }
+  };
+
   if (showPenalty) {
     return <PenaltyScreen onComplete={handlePenaltyComplete} message={penaltyVoice} />;
   }
@@ -79,14 +90,16 @@ export default function SimuladorApp() {
 
   const phaseOrder: Phase[] = [
     'start', 'c1_channel', 'c1_pins', 'c2_channel', 'c2_pins', 'c3_channel', 'c3_pins',
-    'c4_r1', 'c4_r2', 'c4_r3', 'c4_r4', 'c4_r5', 'victory',
+    'c4_builder',
+    'c5_r1', 'c5_r2', 'c5_r3', 'c5_r4', 'c5_r5', 'victory',
   ];
-  const totalSteps = 11;
+  const totalSteps = 13;
   const phaseConfig: Record<string, number> = {
     c1_channel: 1, c1_pins: 2,
     c2_channel: 3, c2_pins: 4,
     c3_channel: 5, c3_pins: 6,
-    c4_r1: 7, c4_r2: 8, c4_r3: 9, c4_r4: 10, c4_r5: 11,
+    c4_builder: 7,
+    c5_r1: 8, c5_r2: 9, c5_r3: 10, c5_r4: 11, c5_r5: 12,
   };
   const progress = ((phaseConfig[phase] || 0) / totalSteps) * 100;
 
@@ -104,7 +117,9 @@ export default function SimuladorApp() {
           </button>
           <span className="text-xs text-slate-500 font-mono truncate max-w-[120px]">{teamName}</span>
         </div>
-        <Timer startTime={startTime} />
+        <div onClick={handleTimerClick} className="cursor-pointer">
+          <Timer startTime={startTime} />
+        </div>
       </header>
 
       <div className="h-1 bg-slate-800">
@@ -112,7 +127,7 @@ export default function SimuladorApp() {
       </div>
 
       <main className="flex-1 flex flex-col p-4 max-w-lg mx-auto w-full">
-        {/* === PHASES 1-3 (original) === */}
+        {/* === CASES 1-3 === */}
         {phase === 'c1_channel' && (
           <ChannelQuestion
             icon="truck"
@@ -196,13 +211,21 @@ export default function SimuladorApp() {
               { pin: '60', voice: '¡Quick Commerce completado con éxito! Entrega en la última milla dominada.' },
             ]}
             errorVoice="¡Error! El Quick Commerce despacha desde Dark Stores, no desde fábricas ni mayoristas. Solo necesitas la Dark Store y el cliente. Sistema bloqueado."
-            onComplete={() => setPhase('c4_r1')}
+            onComplete={() => setPhase('c4_builder')}
             onError={(voice) => triggerPenalty(voice, 'c3_pins')}
           />
         )}
 
-        {/* === PHASE 4: 5 CRISIS CHALLENGES === */}
-        {phase === 'c4_r1' && (
+        {/* === PHASE 4: ROUTE BUILDER (4 Products) === */}
+        {phase === 'c4_builder' && (
+          <ChannelBuilder
+            onVictory={() => setPhase('c5_r1')}
+            onError={(voice) => triggerPenalty(voice, 'c4_builder')}
+          />
+        )}
+
+        {/* === PHASE 5: 5 CRISIS CHALLENGES === */}
+        {phase === 'c5_r1' && (
           <CrisisWrapper
             crisisNumber={1}
             icon="🚨"
@@ -211,14 +234,14 @@ export default function SimuladorApp() {
             validateGame={() => crisis1Ref.current?.validate() ?? false}
             successVoice="¡Flujo del CEDI asegurado! La cadena de frío se mantuvo intacta. Recepción, Clasificación, Picking y Packing, Despacho. Excelente gestión bajo presión."
             errorExplanation="❌ ¡DESASTRE OPERATIVO! La mercancía se pudrió en el muelle. La teoría de la Red de Distribución es inquebrantable: Todo inicia con la RECEPCIÓN (descarga del camión). Luego, obligatoriamente se hace la CLASIFICACIÓN (por destino o SKU). De ahí pasa a preparación (PICKING Y PACKING, que es el corazón que define la velocidad del CEDI), y finalmente sale a DESPACHO. ¡No puedes inventar atajos! Las flores se marchitaron y las vacunas perdieron la cadena de frío. Operación detenida."
-            onSuccess={() => setPhase('c4_r2')}
-            onError={(voice) => triggerPenalty(voice, 'c4_r1')}
+            onSuccess={() => setPhase('c5_r2')}
+            onError={(voice) => triggerPenalty(voice, 'c5_r1')}
           >
             <Crisis1Console ref={crisis1Ref} />
           </CrisisWrapper>
         )}
 
-        {phase === 'c4_r2' && (
+        {phase === 'c5_r2' && (
           <CrisisWrapper
             crisisNumber={2}
             icon="🚨"
@@ -227,14 +250,14 @@ export default function SimuladorApp() {
             validateGame={() => crisis2Ref.current?.validate() ?? false}
             successVoice="¡Canal configurado correctamente! Megamayorista fraccionando carga y Minoristas TAT vendiendo al detal. 500,000 tiendas cubiertas en 48 horas."
             errorExplanation="❌ ¡EL PRODUCTO NO LLEGÓ A LA GENTE Y PERDIMOS MILLONES! El consumo masivo y económico exige un CANAL LARGO. A mayor cobertura geográfica, necesitas ceder margen a un MAYORISTA que compre en tractomulas y fraccione la carga, entregándosela al MINORISTA (la tienda), quien vende por unidades al detal en cada cuadra. ¡Intentar vender masivo por web o camiones propios es un suicidio logístico! El Agente Aduanero es para comercio internacional, no aplica aquí."
-            onSuccess={() => setPhase('c4_r3')}
-            onError={(voice) => triggerPenalty(voice, 'c4_r2')}
+            onSuccess={() => setPhase('c5_r3')}
+            onError={(voice) => triggerPenalty(voice, 'c5_r2')}
           >
             <Crisis2Console ref={crisis2Ref} />
           </CrisisWrapper>
         )}
 
-        {phase === 'c4_r3' && (
+        {phase === 'c5_r3' && (
           <CrisisWrapper
             crisisNumber={3}
             icon="🚨"
@@ -243,14 +266,14 @@ export default function SimuladorApp() {
             validateGame={() => crisis3Ref.current?.validate() ?? false}
             successVoice="¡Calibración perfecta! Góndolas al 0% y SKUs mínimos. El Hard Discount es austeridad pura: el rey es el PRECIO. Producto exhibido desde la caja corrugada."
             errorExplanation="❌ ¡QUIEBRA FINANCIERA INMINENTE! No entendiste el ADN del Hard Discount. Su éxito radica en la eficiencia extrema y austeridad: INVERSIÓN EN GÓNDOLAS DEBE SER 0% (se exhibe y vende desde la misma caja de cartón rasgada, sin lujos) y los SKUs deben ser súper limitados (menos de 1,000 — menos variedad significa reabastecimiento más rápido y simple). ¡El rey absoluto aquí es el PRECIO! Si inviertes en lujo o variedad, pierdes la guerra de costos contra D1 y Ara."
-            onSuccess={() => setPhase('c4_r4')}
-            onError={(voice) => triggerPenalty(voice, 'c4_r3')}
+            onSuccess={() => setPhase('c5_r4')}
+            onError={(voice) => triggerPenalty(voice, 'c5_r3')}
           >
             <Crisis3Console ref={crisis3Ref} />
           </CrisisWrapper>
         )}
 
-        {phase === 'c4_r4' && (
+        {phase === 'c5_r4' && (
           <CrisisWrapper
             crisisNumber={4}
             icon="🚨"
@@ -259,14 +282,14 @@ export default function SimuladorApp() {
             validateGame={() => crisis4Ref.current?.validate() ?? false}
             successVoice="¡Diagnóstico perfecto! 53% del costo logístico total se consume en la Última Milla. Has identificado el hoyo negro financiero."
             errorExplanation="❌ ¡DESCUADRE CONTABLE IMPERDONABLE! Sigues perdiendo plata a chorros. Según la teoría logística y las métricas globales, la Última Milla (Last Mile) representa hasta el 53% del costo total de envío. El tráfico, las calles estrechas, direcciones incorrectas y la ausencia del cliente hacen que cada re-entrega duplique el costo logístico de ese paquete. ¡Es el tramo más corto pero el hoyo negro financiero más letal! Calibra el escáner exactamente en 53%."
-            onSuccess={() => setPhase('c4_r5')}
-            onError={(voice) => triggerPenalty(voice, 'c4_r4')}
+            onSuccess={() => setPhase('c5_r5')}
+            onError={(voice) => triggerPenalty(voice, 'c5_r4')}
           >
             <Crisis4Console ref={crisis4Ref} />
           </CrisisWrapper>
         )}
 
-        {phase === 'c4_r5' && (
+        {phase === 'c5_r5' && (
           <CrisisWrapper
             crisisNumber={5}
             icon="🚨"
@@ -276,7 +299,7 @@ export default function SimuladorApp() {
             successVoice="¡RFID activado! Las antenas están leyendo pallets enteros en milisegundos. Trazabilidad total en tiempo real. ¡ERES UN GERENTE LOGÍSTICO NIVEL DIOS!"
             errorExplanation="❌ ¡EL CEDI ESTÁ PARALIZADO POR USAR TECNOLOGÍA OBSOLETA! El código de barras es bueno, pero exige 'línea de vista' (un operario apuntando manualmente). La respuesta que salva la operación es RFID (Identificación por Radiofrecuencia). Permite lectura automática de pallets enteros en milisegundos, sin necesidad de línea de visión directa, brindando trazabilidad en tiempo real a la velocidad de la luz. ¡Actualiza tu mente!"
             onSuccess={() => setPhase('victory')}
-            onError={(voice) => triggerPenalty(voice, 'c4_r5')}
+            onError={(voice) => triggerPenalty(voice, 'c5_r5')}
           >
             <Crisis5Console ref={crisis5Ref} />
           </CrisisWrapper>
