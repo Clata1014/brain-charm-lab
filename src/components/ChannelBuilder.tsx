@@ -1,5 +1,6 @@
 import { useState, useCallback, useRef, useEffect } from 'react';
 import { Factory, Home, Warehouse, ShoppingCart, Cloud, Truck, Zap, RotateCcw, Eraser, AlertTriangle } from 'lucide-react';
+import { validateKeywords, detectSpam, SPAM_PENALTY } from '@/lib/keywordValidator';
 
 type NodeType = 'fabrica' | 'mayorista' | 'minorista' | 'nube' | 'flete' | 'cliente';
 
@@ -167,6 +168,17 @@ export default function ChannelBuilder({ onVictory, onError }: ChannelBuilderPro
     if (step === 2) {
       if (report.trim().length < 40) {
         setAlert('⚠️ El reporte es muy corto. Sustente como un gerente.');
+        return;
+      }
+      // Anti-cheat: spam detection
+      if (detectSpam(report)) {
+        if (onError) onError(SPAM_PENALTY);
+        return;
+      }
+      // Keyword validation for specific products
+      const kwFail = validateKeywords(report, currentProduct);
+      if (kwFail) {
+        if (onError) onError(kwFail);
         return;
       }
       setStep(3);
